@@ -21,5 +21,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function() {
     Route::post('/login',[UserController::class, 'login']);
+
+    //get Something
     Route::get('/',[UserController::class,'index'])->middleware('auth:api');
+
+    //add User
+    Route::post('/user',[UserController::class,'store'])->middleware('auth:api');
 });

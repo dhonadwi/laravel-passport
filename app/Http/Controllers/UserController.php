@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -20,18 +22,20 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(),[
             'email' => 'required',
             'password' => 'required'
         ]);
 
+        if($validator->fails()) {
+            return response()->json(['status' => false,'message' => $validator->errors()],422);
+        }
+
         try {
-            # code...
             $user = User::where('email', $request->email)->first();
             if($user) {
                 if(Hash::check($request->password,$user->password)) {
-                    $token = $user->createToken('sis')->accessToken;
-                    // $token = $user->bearerToken();
+                    $token = $user->createToken($request->name)->accessToken;
                     return response()->json([
                         'status' => true,
                         'message' => [
@@ -39,11 +43,10 @@ class UserController extends Controller
                             'token' => $token
                         ],
                         ]);
-                }
+                     }
             }
             return response()->json(['status' => false, 'message' => 'Email / Password failed'], 403);
         } catch (\Exception $e) {
-            # code...
             return response()->json(['status' => false, 'message' => $e->getMessage()],403);
         }
     }
@@ -66,7 +69,24 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'email' => 'required',
+            'password' => 'required'
+        ]);
+        if($validator->fails()) {
+            return response()->json(['status' => false,'message' => $validator->errors()],422);
+        }
+        $data = $request->all();
+        $data['password'] = Hash::make($request->password);
+
+        try {
+            User::create($data);
+            return response()->json(['status'=> true,'message' => 'User has been added'],200);
+        } catch (\Exception $e) {
+            return response()->json(['status'=> false,'message' => $e->getMessage()],403);
+        }
+
     }
 
     /**
