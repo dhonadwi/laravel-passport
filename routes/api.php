@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BprtmaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,3 +38,5 @@ Route::group(['prefix' => 'v1'], function() {
     //cek dulu
     // Route::resource('user', [UserController::class]);
 });
+
+Route::get('/bpr',[BprtmaController::class, 'index'])->middleware('auth:api');
