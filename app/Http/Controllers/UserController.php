@@ -158,9 +158,10 @@ class UserController extends Controller
             try{
                 $user['name'] = $request->name;
                 $user->save();
+                DB::commit();
                 return response()->json(['status' => true,'data' => ['message' => 'User has been updated', 'user' => $user]],200);   
             }catch (\Exception $e){
-                
+                DB::rollBack();
                 return response()->json(['status' => true,'message' => $e->getMessage()],403);   
             }
         }
