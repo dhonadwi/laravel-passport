@@ -21,10 +21,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function() {
     Route::post('/login',[UserController::class, 'login']);
+    Route::post('/logout',[UserController::class,'logout'])->middleware(['auth:api']);
 
     //get Something
-    Route::get('/',[UserController::class,'index'])->middleware('auth:api');
+    Route::get('/',[UserController::class,'index'])->middleware(['auth:api']);
 
     //add User
-    Route::post('/user',[UserController::class,'store'])->middleware('auth:api');
+    Route::post('/user',[UserController::class,'store'])->middleware(['auth:api']);
+
+    //show User
+    Route::post('/user/{id}',[UserController::class,'show'])->middleware(['auth:api']);
+
+    //edit User
+    Route::put('/user/{id}',[UserController::class,'update'])->middleware(['auth:api']);
+    
+    //cek dulu
+    // Route::resource('user', [UserController::class]);
 });

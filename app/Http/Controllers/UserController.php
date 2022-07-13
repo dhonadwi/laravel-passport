@@ -4,12 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
+use Laravel\Passport\RefreshToken;
+use Laravel\Passport\Token;
+
 class UserController extends Controller
 {
+    public function logout()
+    {   
+        $user = User::find(Auth::user()->id);
+        $tokens =  $user->tokens->pluck('id');
+        Token::whereIn('id', $tokens)
+            ->update(['revoked'=> true]);
+        RefreshToken::whereIn('access_token_id', $tokens)->update(['revoked' => true]);
+
+        return response()->json(['status' => true, 'message' => 'User Logout'],200);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -80,10 +95,13 @@ class UserController extends Controller
         $data = $request->all();
         $data['password'] = Hash::make($request->password);
 
+        DB::beginTransaction();
         try {
             User::create($data);
+            DB::commit();
             return response()->json(['status'=> true,'message' => 'User has been added'],200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['status'=> false,'message' => $e->getMessage()],403);
         }
 
@@ -97,7 +115,12 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+       $user = User::find($id);
+
+       if($user) {
+           return response()->json(['status' => true,'message' => $user],200);   
+        }
+        return response()->json(['status' => false,'message' => 'not found'],404);
     }
 
     /**
@@ -108,7 +131,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+       
     }
 
     /**
@@ -120,7 +143,29 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(),[
+            'name' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(['status' => false,'message' => $validator->errors()],422);
+        }
+
+        $user = User::find($id);
+
+        if($user) {
+            DB::beginTransaction();
+            try{
+                $user['name'] = $request->name;
+                $user->save();
+                return response()->json(['status' => true,'data' => ['message' => 'User has been updated', 'user' => $user]],200);   
+            }catch (\Exception $e){
+                
+                return response()->json(['status' => true,'message' => $e->getMessage()],403);   
+            }
+        }
+
+        return response()->json(['status' => false,'message' => 'not found'],404);
     }
 
     /**

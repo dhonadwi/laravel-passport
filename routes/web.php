@@ -17,6 +17,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('login',function() {
+Route::get('/',function() {
     return response()->json(['status' => false, 'message' => 'Unauthorized'],403);
 })->name('login');
