@@ -50,12 +50,15 @@ class UserController extends Controller
             $user = User::where('email', $request->email)->first();
             if($user) {
                 if(Hash::check($request->password,$user->password)) {
-                    $token = $user->createToken($request->name)->accessToken;
+                    $token = $user->createToken($user['name']);
+                    $strToken = $token->accessToken;
+                    $expToken = $token->token->expires_at->diffForHumans();
                     return response()->json([
                         'status' => true,
                         'message' => [
                             'user' => $user,
-                            'token' => $token
+                            'token' => $strToken,
+                            'expireTime' => $expToken,
                         ],
                         ]);
                      }
