@@ -14,8 +14,8 @@ class BprtmaController extends Controller
      */
     public function index()
     {
-        // $user = DB::connection('mysql2')->table('dta_users')->where('user_id', '1011001')->get();
-        $user = DB::connection('mysql2')->select("UPDATE dta_users set user_name='dhona' WHERE user_id='1011001'");
+        $user = DB::connection('mysql2')->table('dta_users')->where('user_id', '1011001')->get();
+        // $user = DB::connection('mysql2')->select("UPDATE dta_users set user_name='dhona' WHERE user_id='1011001'");
 
         return response()->json(['status' => true, 'data' => $user],200);
     }

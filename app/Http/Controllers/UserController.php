@@ -123,6 +123,12 @@ class UserController extends Controller
         return response()->json(['status' => false,'message' => 'not found'],404);
     }
 
+    public function show_all() 
+    {
+        $users = User::all();
+        return response()->json(['status' => true, 'users' => $users],200);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

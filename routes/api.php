@@ -23,6 +23,9 @@ Route::group(['prefix' => 'v1'], function() {
     //get Something
     Route::get('/',[UserController::class,'index'])->middleware(['auth:api']);
 
+    //show all User
+    Route::get('/user',[UserController::class,'show_all'])->middleware(['auth:api']);
+    
     //add User
     Route::post('/user',[UserController::class,'store'])->middleware(['auth:api']);
 
